@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
     public int lives;
-    public Text LifeCount;
+    public TextMeshProUGUI LifeCount;
 
     int level;
     GameObject player; 
@@ -31,7 +32,7 @@ public class PlayerController : MonoBehaviour
         float hInput = Input.GetAxis("Horizontal");
         float vInput = Input.GetAxis("Vertical");
 
-        Vector3 direction = new Vector3(hInput, vInput, 0);
+        Vector3 direction = new Vector3(hInput, 0, vInput);
 
         transform.Translate(direction * speed * Time.deltaTime);
     }
