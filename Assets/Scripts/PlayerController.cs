@@ -1,30 +1,38 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 using TMPro;
 
 public class PlayerController : MonoBehaviour
 {
     public int lives;
-    public TextMeshProUGUI LifeCount;
+    public static event Action<PlayerController> DispatchPlayerAtBaseEvent = delegate { };
+    public static event Action<PlayerController> DispatchPlayerDeadEvent = delegate { };
+    public static event Action<PlayerController> DispatchRestartLevelEvent = delegate { };
 
-    int level;
-    GameObject player; 
-    [SerializeField] float speed = 3f;
+    private int level;
+    [SerializeField] private float speed = 15f;
+    private Vector3 jump;
+    private float force = 3f;
+    private bool bIsOnGround = true;
+    Rigidbody rigidbody;
 
     void Start()
     {
-        player = GameObject.FindGameObjectWithTag("Player");
-        lives = GI_CGD.lives;
-        LifeCount.text = "Lives: " + lives.ToString();
-        level = SceneManager.GetActiveScene().buildIndex;
+        lives = GameManager.lives;
+        rigidbody = GetComponent<Rigidbody>();
+        jump = new Vector3(0, force, 0);
+    }
+
+    private void OnCollisionStay(Collision other)
+    {
+        bIsOnGround = true;
     }
 
     void Update()
     {
         PlayerMovement();
+        PlayerJump();
     }
 
     private void PlayerMovement()
@@ -37,6 +45,15 @@ public class PlayerController : MonoBehaviour
         transform.Translate(direction * speed * Time.deltaTime);
     }
 
+    private void PlayerJump()
+    {
+        if (Input.GetKeyDown(KeyCode.Space) && bIsOnGround)
+        {
+            rigidbody.AddForce(jump * force, ForceMode.Impulse);
+            bIsOnGround = false;
+        }
+    }
+
     private void OnCollisionEnter(Collision collision)
     {
         // on death remove life and restart
@@ -45,43 +62,35 @@ public class PlayerController : MonoBehaviour
             lives -= 1;
             if (lives > 0)
             {
-                SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-                SetLifeCounterText();
+                DispatchRestartLevelEvent(this);
             }
             else
             {
-                Destroy(player);
-                SetLifeCounterText();
-                SceneManager.LoadScene(0);
+                DispatchPlayerDeadEvent(this);
             }
+
+            SaveGameData();
         }
 
-        // on captured add point and go to next level
-        if (collision.gameObject.tag == "captured")
+        if (collision.gameObject.tag == "flag")
         {
-            level++;
-            SetLifeCounterText();
-            SceneManager.LoadScene(level);
+            FlagManager.Instance.bIsHeld = true;
+        }
+    }
+
+    private void OnTriggerEnter(Collider collider)
+    {
+        // player and flag are at base - send dispatch
+        if (collider.gameObject.tag == "base" && FlagManager.Instance.bIsHeld)
+        {
+            DispatchPlayerAtBaseEvent(this);
         }
     }
 
     void SaveGameData()
     {
         //update game instance 
-        GI_CGD.lives = lives;
-    }
-
-    //display life count - move to ui manager
-    void SetLifeCounterText()
-    {
-        if (lives > 0)
-        {
-            LifeCount.text = "Lives: " + lives.ToString();
-        }
-        else if (lives == 0)
-        {
-            LifeCount.text = "You ran out of lives. You'll have to start over.";
-        }
+        GameManager.lives = lives;
     }
 
 }
