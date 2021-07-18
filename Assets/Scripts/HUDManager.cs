@@ -6,29 +6,62 @@ using TMPro;
 public class HUDManager : MonoBehaviour
 {
     public int lives;
-    public TextMeshProUGUI tmp_LifeCount;
+    public TextMeshProUGUI tmp_lives;
+    public int score = 0;
+    public TextMeshProUGUI tmp_score;
+    public bool bFlagIsHeld = false;
+    public TextMeshProUGUI tmp_flagIsHeld;
 
-    private void Awake()
+    private void OnEnable()
     {
-        // HUDManager.DispatchLossOfLifeEvent += RemoveLife;
+        PlayerController.DispatchPlayerHasFlagEvent += ShowFlagIndicator;
+        PlayerController.DispatchPlayerDroppedFlagEvent += HideFlagIndicator;
+        PlayerController.DispatchPlayerDeadEvent += UpdateLivesDisplay;
+    }
+    private void OnDisable()
+    {
+        PlayerController.DispatchPlayerHasFlagEvent -= ShowFlagIndicator;
+        PlayerController.DispatchPlayerDroppedFlagEvent -= HideFlagIndicator;
+        PlayerController.DispatchPlayerDeadEvent -= UpdateLivesDisplay;
     }
 
     void Start()
     {
-        lives = GameManager.lives;
-        tmp_LifeCount.text = "Lives: " + lives.ToString();
-        SetLifeCounterText();
+        // lives = GameManager.lives;
+        tmp_lives.text = "Lives: " + GameManager.lives.ToString();
+        tmp_score.text = "Score: " + score.ToString();
+        UpdateLivesDisplay();
+        UpdateScoreDisplay();
     }
     //set life count
-    public void SetLifeCounterText()
+    public void UpdateLivesDisplay()
     {
-        if (lives > 0)
+        // lives = GameManager.lives;
+        if (GameManager.lives > 0)
         {
-            tmp_LifeCount.text = "Lives: " + lives.ToString();
+            tmp_lives.text = $"Lives: {GameManager.lives.ToString()}";
         }
-        else if (lives == 0)
+        else if (GameManager.lives == 0)
         {
-            tmp_LifeCount.text = "You ran out of lives. You'll have to start over.";
+            tmp_lives.text = "You ran out of lives. You'll have to start over.";
         }
+    }
+    public void UpdateLivesDisplay(PlayerController e)
+    {
+        // lives = GameManager.lives;
+        tmp_lives.text = $"Lives: {GameManager.lives.ToString()}";
+    }
+    public void UpdateScoreDisplay()
+    {
+        tmp_score.text = $"Score: {GameManager.score}";
+    }
+
+    public void ShowFlagIndicator(PlayerController e)
+    {
+        tmp_flagIsHeld.text = "hasFlag";
+    }
+    public void HideFlagIndicator(PlayerController e)
+    {
+        tmp_flagIsHeld.text = " ";
     }
 }

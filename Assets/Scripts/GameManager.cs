@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour
 {
     public static int lives = 3;
+    public static int score = 0;
     public static int level;
     [HideInInspector] public UIManager uiManager;
     [HideInInspector] public FlagManager flagManager;
@@ -23,26 +24,27 @@ public class GameManager : MonoBehaviour
         uiManager = UIManager.Instance;
         flagManager = FlagManager.Instance;
     }
-
     public void StartGame()
     {
         lives = 3;
         DispatchStartGameEvent(this);
     }
-
     public void RestartGame()
     {
         lives = 3;
+        score = 0;
         DispatchRestartGameEvent(this);
     }
-
     public void EndGame()
     {
         DispatchEndGameEvent(this);
     }
-
     public void ReloadGame()
     {
         DispatchReloadGameEvent(this);
+    }
+    public void QuitGame()
+    {
+        Application.Quit();
     }
 }

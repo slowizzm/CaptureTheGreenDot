@@ -12,26 +12,32 @@ public class LevelManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
     }
-
-    private void RegisterEvents()
+    private void OnEnable()
     {
         PlayerController.DispatchPlayerAtBaseEvent += E_AtBaseEvent;
         GameManager.DispatchStartGameEvent += LoadLevel;
         GameManager.DispatchRestartGameEvent += UnloadLevel;
         GameManager.DispatchRestartGameEvent += ReloadLevel;
         PlayerController.DispatchRestartLevelEvent += ReloadLevel;
+        GameManager.DispatchEndGameEvent += UnloadLevel;
     }
-
+    private void OnDisable()
+    {
+        PlayerController.DispatchPlayerAtBaseEvent -= E_AtBaseEvent;
+        GameManager.DispatchStartGameEvent -= LoadLevel;
+        GameManager.DispatchRestartGameEvent -= UnloadLevel;
+        GameManager.DispatchRestartGameEvent -= ReloadLevel;
+        PlayerController.DispatchRestartLevelEvent -= ReloadLevel;
+        GameManager.DispatchEndGameEvent -= UnloadLevel;
+    }
     private void E_AtBaseEvent(PlayerController e)
     {
         Debug.Log("you win");
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     }
-
     void Start()
     {
-        RegisterEvents();
         currentLevel = SceneManager.GetActiveScene().buildIndex;
     }
     public void ReloadLevel<T>(T e)

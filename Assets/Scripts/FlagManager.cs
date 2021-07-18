@@ -15,7 +15,6 @@ public class FlagManager : MonoBehaviour
     {
         if (Instance == null) Instance = this;
     }
-
     void Start()
     {
         SetFlagStartPos();
@@ -27,7 +26,6 @@ public class FlagManager : MonoBehaviour
             UpdateFlagPos(new Vector3(player.transform.position.x, 5, player.transform.position.z));
         }
     }
-
     public void SetFlagStartPos()
     {
 
@@ -41,7 +39,6 @@ public class FlagManager : MonoBehaviour
         // set flag pos
         UpdateFlagPos(startPosition);
     }
-
     public void UpdateFlagPos(Vector3 pos)
     {
         flag.transform.position = new Vector3(pos.x, pos.y, pos.z);

@@ -7,18 +7,14 @@ public class UIManager : MonoBehaviour
 {
     public GameObject cnv_ui;
     public int lives;
-    List<Transform> frames = new List<Transform>();
 
     public static UIManager Instance { get; private set; }
-
     private void Awake()
     {
         if (Instance == null) Instance = this;
         DontDestroyOnLoad(gameObject);
-        RegisterEvents();
     }
-
-    private void RegisterEvents()
+    private void OnEnable()
     {
         PlayerController.DispatchPlayerDeadEvent += DisplayGameMenu;
         PlayerController.DispatchPlayerAtBaseEvent += DisplaySuccessMenu;
@@ -27,12 +23,15 @@ public class UIManager : MonoBehaviour
         GameManager.DispatchRestartGameEvent += HideAllMenus;
         GameManager.DispatchReloadGameEvent += DisplayStartMenu;
     }
-
-    private void Start()
+    private void OnDisable()
     {
-        foreach (Transform child in transform) frames.Add(child);
+        PlayerController.DispatchPlayerDeadEvent -= DisplayGameMenu;
+        PlayerController.DispatchPlayerAtBaseEvent -= DisplaySuccessMenu;
+        GameManager.DispatchStartGameEvent -= HideAllMenus;
+        GameManager.DispatchEndGameEvent -= DisplayStartMenu;
+        GameManager.DispatchRestartGameEvent -= HideAllMenus;
+        GameManager.DispatchReloadGameEvent -= DisplayStartMenu;
     }
-
     public void HideAllMenus<T>(T e)
     {
         bool[] arr = { false, false, false };
@@ -55,15 +54,14 @@ public class UIManager : MonoBehaviour
     }
     public void MenuStates(bool[] states)
     {
-        ToggleHomeMenu(states[0]);
+        ToggleStartMenu(states[0]);
         ToggleGameMenu(states[1]);
         ToggleSuccessMenu(states[2]);
     }
-    public void ToggleHomeMenu(bool state)
+    public void ToggleStartMenu(bool state)
     {
         transform.GetChild(0).gameObject.SetActive(state);
     }
-
     public void ToggleGameMenu(bool state)
     {
         transform.GetChild(1).gameObject.SetActive(state);

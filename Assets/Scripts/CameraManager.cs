@@ -9,10 +9,18 @@ public class CameraManager : MonoBehaviour
 
     private void Awake()
     {
-        PlayerController.DispatchPlayerDeadEvent += EnableRotateAround;
-        GameManager.DispatchStartGameEvent += ResetCameraRotation;
         camRotY = Camera.main.transform.localEulerAngles.y;
 
+    }
+    private void OnEnable()
+    {
+        PlayerController.DispatchPlayerDeadEvent += EnableRotateAround;
+        GameManager.DispatchStartGameEvent += ResetCameraRotation;
+    }
+    private void OnEnableDisable()
+    {
+        PlayerController.DispatchPlayerDeadEvent -= EnableRotateAround;
+        GameManager.DispatchStartGameEvent -= ResetCameraRotation;
     }
     void Update()
     {
@@ -20,13 +28,20 @@ public class CameraManager : MonoBehaviour
         {
             transform.RotateAround(Vector3.zero, Vector3.up, 10 * Time.deltaTime);
         }
-    }
 
+        if (Input.GetKey(KeyCode.K))
+        {
+            transform.RotateAround(Vector3.zero, Vector3.up, 10 * Time.deltaTime);
+        }
+        if (Input.GetKey(KeyCode.L))
+        {
+            transform.RotateAround(Vector3.zero, Vector3.up, -10 * Time.deltaTime);
+        }
+    }
     private void EnableRotateAround<T>(T e)
     {
         bIsGameMenu = true;
     }
-
     private void ResetCameraRotation<T>(T e)
     {
         bIsGameMenu = false;
