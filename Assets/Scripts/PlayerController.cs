@@ -15,12 +15,12 @@ public class PlayerController : MonoBehaviour
     private Vector3 jump;
     private float force = 3f;
     private bool bIsOnGround = true;
-    Rigidbody rigidbody;
+    Rigidbody rb;
 
     void Start()
     {
         lives = GameManager.lives;
-        rigidbody = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
         jump = new Vector3(0, force, 0);
     }
 
@@ -49,7 +49,7 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && bIsOnGround)
         {
-            rigidbody.AddForce(jump * force, ForceMode.Impulse);
+            rb.AddForce(jump * force, ForceMode.Impulse);
             bIsOnGround = false;
         }
     }
