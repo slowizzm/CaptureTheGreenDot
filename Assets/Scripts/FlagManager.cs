@@ -21,9 +21,10 @@ public class FlagManager : MonoBehaviour
     }
     private void Update()
     {
+        // if player is has flag then update pos of flag to player pos x,z and up off the ground
         if (bIsHeld)
         {
-            UpdateFlagPos(new Vector3(player.transform.position.x, 5, player.transform.position.z));
+            if (player != null) UpdateFlagPos(new Vector3(player.transform.position.x, 5, player.transform.position.z));
         }
     }
     public void SetFlagStartPos()
@@ -31,6 +32,13 @@ public class FlagManager : MonoBehaviour
 
         // get array of flag starts
         flagStart = GameObject.FindGameObjectsWithTag("flagStart");
+
+        // make sure a flag is set
+        if (flagStart.Length == 0)
+        {
+            SetFlagStartPos();
+            return;
+        }
 
         // get random flag start and set pos
         int newIndex = Random.Range(0, flagStart.Length);

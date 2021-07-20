@@ -1,12 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelGenerator : MonoBehaviour
 {
     private GameObject[] prefabs;
+
+    // generate the level on awake
     void Awake()
+    {
+        GenerateTiles();
+
+    }
+    // create the level 
+    public void GenerateTiles()
     {
         Scene currentScene = SceneManager.GetSceneAt(1);
         float maxDamageChance = 0.9f;
@@ -20,48 +26,43 @@ public class LevelGenerator : MonoBehaviour
                 {
                     if (Random.Range(0.0f, 1.0f) < maxDamageChance)
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/ground-damage")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/ground-heal", x, z, currentScene);
                     }
                     else
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/ground-heal")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/ground-damage", x, z, currentScene);
                     }
                 }
-                if (Random.Range(0.0f, 1.0f) < 0.4f)
+                else if (Random.Range(0.0f, 1.0f) < 0.4f)
                 {
                     if (Random.Range(0.0f, 1.0f) < maxDamageChance)
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/xpath-damage")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/xpath-damage", x, z, currentScene);
                     }
                     else
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/xpath-heal")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/xpath-heal", x, z, currentScene);
                     }
                 }
-                if (Random.Range(0.0f, 1.0f) < 0.7f)
+                else if (Random.Range(0.0f, 1.0f) < 0.7f)
                 {
                     if (Random.Range(0.0f, 1.0f) < maxDamageChance)
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/zpath-damage")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/zpath-heal", x, z, currentScene);
                     }
                     else
                     {
-                        GameObject go = Instantiate(Resources.Load("Prefabs/zpath-heal")) as GameObject;
-                        go.transform.position = new Vector3(x, 0, z);
-                        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(currentScene.name));
+                        GenerateTile("Prefabs/zpath-damage", x, z, currentScene);
                     }
                 }
             }
         }
+    }
+    // instantiate a tile
+    private void GenerateTile(string tile, float x, float z, Scene scene)
+    {
+        GameObject go = Instantiate(Resources.Load(tile)) as GameObject;
+        go.transform.position = new Vector3(x, 0, z);
+        SceneManager.MoveGameObjectToScene(go, SceneManager.GetSceneByName(scene.name));
     }
 }

@@ -7,41 +7,38 @@ using TMPro;
 public class PlayerController : MonoBehaviour
 {
     public int lives;
+    public float health;
+    public HealthBar healthBar;
     public static event Action<PlayerController> DispatchPlayerAtBaseEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerDeadEvent = delegate { };
     public static event Action<PlayerController> DispatchRestartLevelEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerHasFlagEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerDroppedFlagEvent = delegate { };
 
-    private int level;
     [SerializeField] private float speed = 15f;
+    private int level;
     private Vector3 jump;
     private float force = 1.9f;
+    private const float damageAmt = 0.25f;
+    private const float healAmt = 0.1f;
     private bool bIsOnGround = true;
     Rigidbody rb;
 
     void Start()
     {
         lives = GameManager.lives;
+        health = GameManager.maxHealth;
+        healthBar.SetMaxHealth(health);
         rb = GetComponent<Rigidbody>();
         jump = new Vector3(0, force, 0);
     }
 
-    private void OnDisable()
-    {
-        // SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
-        // Destroy(GetComponent<PlayerController>());
-    }
-
-    private void OnCollisionStay(Collision other)
-    {
-        bIsOnGround = true;
-    }
     void Update()
     {
         PlayerMovement();
         PlayerJump();
     }
+    // locomotion
     private void PlayerMovement()
     {
         float hInput = Input.GetAxis("Horizontal");
@@ -59,54 +56,100 @@ public class PlayerController : MonoBehaviour
             bIsOnGround = false;
         }
     }
+    // collision detection
+
+    // is player on ground
+    private void OnCollisionStay(Collision other)
+    {
+        bIsOnGround = true;
+    }
     private void OnCollisionEnter(Collision collision)
     {
-        // on death remove life and restart
+        // check if dead
+        // on loss of life remove life and restart level
+        // on death restart game
         if (collision.gameObject.tag == "death")
         {
-            lives -= 1;
-            UpdateGameLivesData();
-            if (lives > 0)
-            {
-                DispatchRestartLevelEvent(this);
-                // StartCoroutine(DelayLevelRestart());
-                SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
-                gameObject.AddComponent<MarkForDestroy>();
-                Destroy(GetComponent<PlayerController>());
-            }
-            else
-            {
-                DispatchPlayerDeadEvent(this);
-            }
+            PlayerDead();
         }
 
+        // player has flag - dispatch event
         if (collision.gameObject.tag == "flag")
         {
             FlagManager.Instance.bIsHeld = true;
             DispatchPlayerHasFlagEvent(this);
         }
     }
-    IEnumerator DelayLevelRestart()
-    {
-        yield return new WaitForSeconds(1);
-        DispatchRestartLevelEvent(this);
-    }
+    // trigger events
     private void OnTriggerEnter(Collider collider)
     {
-        // player and flag are at base - send dispatch
+        // player and flag are at base - dispatch event
         if (collider.gameObject.tag == "base" && FlagManager.Instance.bIsHeld)
         {
-            UpdateGameScoreData();
             DispatchPlayerAtBaseEvent(this);
         }
     }
-    //update game instance 
-    void UpdateGameLivesData()
+    // check if player is inside trigger collider
+    private void OnTriggerStay(Collider collider)
+    {
+        // player taking damage - decrease game manager health and update healthbar
+        if (collider.gameObject.tag == "damage")
+        {
+            if (health >= 0)
+            {
+                health -= damageAmt;
+                Debug.Log("Taking Damage");
+
+                healthBar.SetHealth(health);
+            }
+            else // player is dead
+            {
+                PlayerDead();
+            }
+        }
+        // player healing - increase game manager health and update healthbar
+        if (collider.gameObject.tag == "heal")
+        {
+            if (health <= GameManager.maxHealth)
+            {
+                health += healAmt;
+                Debug.Log("Healing");
+                healthBar.SetHealth(health);
+                UpdatePlayerHealthData();
+            }
+        }
+    }
+    // utility methods
+    private void PlayerDead()
+    {
+        lives -= 1;
+        UpdatePlayerLivesData();
+        // if has lives left:
+        // dispatch event
+        // move player to main scene
+        // add mark for destroy script
+        // remove this script
+        if (lives > 0)
+        {
+            DispatchRestartLevelEvent(this);
+            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
+            gameObject.AddComponent<MarkForDestroy>();
+            Destroy(GetComponent<PlayerController>());
+        }
+        else //// player dead - dispatch event
+        {
+            Destroy(GetComponent<Rigidbody>());
+            // health = GameManager.maxHealth;
+            DispatchPlayerDeadEvent(this);
+        }
+    }
+    // update game instance methods
+    void UpdatePlayerLivesData()
     {
         GameManager.lives = lives;
     }
-    void UpdateGameScoreData()
+    void UpdatePlayerHealthData()
     {
-        GameManager.score += 1;
+        GameManager.health = health;
     }
 }

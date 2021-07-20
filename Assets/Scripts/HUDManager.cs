@@ -2,15 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class HUDManager : MonoBehaviour
 {
-    public int lives;
-    public TextMeshProUGUI tmp_lives;
-    public int score = 0;
-    public TextMeshProUGUI tmp_score;
-    public bool bFlagIsHeld = false;
-    public TextMeshProUGUI tmp_flagIsHeld;
+    [SerializeField] private TextMeshProUGUI tmp_lives;
+    [SerializeField] private TextMeshProUGUI tmp_level;
+    [SerializeField] private TextMeshProUGUI tmp_flagIsHeld;
+    public TextMeshProUGUI tmp_timer;
 
     private void OnEnable()
     {
@@ -29,11 +28,12 @@ public class HUDManager : MonoBehaviour
     {
         // lives = GameManager.lives;
         tmp_lives.text = "Lives: " + GameManager.lives.ToString();
-        tmp_score.text = "Score: " + score.ToString();
+        tmp_level.text = "Score: " + GameManager.level.ToString();
         UpdateLivesDisplay();
         UpdateScoreDisplay();
     }
-    //set life count
+    //set lives text
+    // not a fan of the overloading, refactor later
     public void UpdateLivesDisplay()
     {
         // lives = GameManager.lives;
@@ -41,19 +41,14 @@ public class HUDManager : MonoBehaviour
         {
             tmp_lives.text = $"Lives: {GameManager.lives.ToString()}";
         }
-        else if (GameManager.lives == 0)
-        {
-            tmp_lives.text = "You ran out of lives. You'll have to start over.";
-        }
     }
     public void UpdateLivesDisplay(PlayerController e)
     {
-        // lives = GameManager.lives;
-        tmp_lives.text = $"Lives: {GameManager.lives.ToString()}";
+        tmp_lives.text = $"Lives: 0";
     }
     public void UpdateScoreDisplay()
     {
-        tmp_score.text = $"Score: {GameManager.score}";
+        tmp_level.text = $"Level: {GameManager.level}";
     }
 
     public void ShowFlagIndicator(PlayerController e)

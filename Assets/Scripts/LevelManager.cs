@@ -14,43 +14,50 @@ public class LevelManager : MonoBehaviour
     }
     private void OnEnable()
     {
-        PlayerController.DispatchPlayerAtBaseEvent += E_AtBaseEvent;
         GameManager.DispatchStartGameEvent += LoadLevel;
-        GameManager.DispatchRestartGameEvent += UnloadLevel;
-        GameManager.DispatchRestartGameEvent += ReloadLevel;
-        PlayerController.DispatchRestartLevelEvent += ReloadLevel;
         GameManager.DispatchEndGameEvent += UnloadLevel;
+        GameManager.DispatchReloadGameEvent += RestartLevel;
+        PlayerController.DispatchRestartLevelEvent += RestartLevel;
+        PlayerController.DispatchPlayerAtBaseEvent += E_AtBaseEvent;
     }
     private void OnDisable()
     {
-        PlayerController.DispatchPlayerAtBaseEvent -= E_AtBaseEvent;
         GameManager.DispatchStartGameEvent -= LoadLevel;
-        GameManager.DispatchRestartGameEvent -= UnloadLevel;
-        GameManager.DispatchRestartGameEvent -= ReloadLevel;
-        PlayerController.DispatchRestartLevelEvent -= ReloadLevel;
         GameManager.DispatchEndGameEvent -= UnloadLevel;
-    }
-    private void E_AtBaseEvent(PlayerController e)
-    {
-        Debug.Log("you win");
-        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
-        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        GameManager.DispatchReloadGameEvent -= RestartLevel;
+        PlayerController.DispatchRestartLevelEvent -= RestartLevel;
+        PlayerController.DispatchPlayerAtBaseEvent -= E_AtBaseEvent;
     }
     void Start()
     {
-        currentLevel = SceneManager.GetActiveScene().buildIndex;
+        currentLevel = GameManager.level;
     }
-    public void ReloadLevel<T>(T e)
+    private void E_AtBaseEvent(PlayerController e)
     {
+        Debug.Log("congratz: reached end of level");
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+    }
+    public void LoadLevel(GameManager e)
+    {
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
     }
     public void UnloadLevel<T>(T e)
     {
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     }
-    public void LoadLevel(GameManager e)
+    public void RestartLevel<T>(T e)
     {
-        SceneManager.LoadSceneAsync(1, LoadSceneMode.Additive);
+        GameManager.health = GameManager.maxHealth;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
+    }
+    public void StartNextLevel()
+    {
+        currentLevel++;
+        GameManager.level = currentLevel;
+        GameManager.health = GameManager.maxHealth;
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
     }
 }
