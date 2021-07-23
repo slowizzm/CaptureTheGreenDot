@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System;
 using UnityEngine;
 
 public class FlagManager : MonoBehaviour
@@ -9,6 +10,7 @@ public class FlagManager : MonoBehaviour
     [HideInInspector] public bool bIsHeld = false;
     public static FlagManager Instance { get; private set; }
     GameObject[] flagStart;
+    public static event Action<FlagManager> DispatchSuicideLevelEvent = delegate { };
 
 
     private void Awake()
@@ -32,16 +34,16 @@ public class FlagManager : MonoBehaviour
 
         // get array of flag starts
         flagStart = GameObject.FindGameObjectsWithTag("flagStart");
-
+        // Debug.Log(flagStart);
         // make sure a flag is set
-        if (flagStart.Length == 0)
+        if (flagStart.Length <= 0 || flagStart == null)
         {
-            SetFlagStartPos();
+            DispatchSuicideLevelEvent(this);
             return;
         }
 
         // get random flag start and set pos
-        int newIndex = Random.Range(0, flagStart.Length);
+        int newIndex = UnityEngine.Random.Range(0, flagStart.Length);
         Vector3 startPosition = flagStart[newIndex].transform.position;
 
         // set flag pos
