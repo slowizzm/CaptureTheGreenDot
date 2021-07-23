@@ -11,7 +11,7 @@ public class PlayerController : MonoBehaviour
     public HealthBar healthBar;
     public static event Action<PlayerController> DispatchPlayerAtBaseEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerDeadEvent = delegate { };
-    public static event Action<PlayerController> DispatchRestartLevelEvent = delegate { };
+    public static event Action<PlayerController> DispatchPlayerLifeLostEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerHasFlagEvent = delegate { };
     public static event Action<PlayerController> DispatchPlayerDroppedFlagEvent = delegate { };
 
@@ -23,6 +23,15 @@ public class PlayerController : MonoBehaviour
     private const float healAmt = 0.1f;
     private bool bIsOnGround = true;
     Rigidbody rb;
+
+    private void OnEnable()
+    {
+        GameTimer.DispatchTimeIsOutEvent += PlayerDead;
+    }
+    private void OnDestroy()
+    {
+        GameTimer.DispatchTimeIsOutEvent -= PlayerDead;
+    }
 
     void Start()
     {
@@ -65,14 +74,6 @@ public class PlayerController : MonoBehaviour
     }
     private void OnCollisionEnter(Collision collision)
     {
-        // check if dead
-        // on loss of life remove life and restart level
-        // on death restart game
-        if (collision.gameObject.tag == "death")
-        {
-            PlayerDead();
-        }
-
         // player has flag - dispatch event
         if (collision.gameObject.tag == "flag")
         {
@@ -83,6 +84,13 @@ public class PlayerController : MonoBehaviour
     // trigger events
     private void OnTriggerEnter(Collider collider)
     {
+        // check if dead
+        // on loss of life remove life and restart level
+        // on death restart game
+        if (collider.gameObject.tag == "death")
+        {
+            PlayerDead();
+        }
         // player and flag are at base - dispatch event
         if (collider.gameObject.tag == "base" && FlagManager.Instance.bIsHeld)
         {
@@ -98,7 +106,7 @@ public class PlayerController : MonoBehaviour
             if (health >= 0)
             {
                 health -= damageAmt;
-                Debug.Log("Taking Damage");
+                // Debug.Log("Taking Damage");
 
                 healthBar.SetHealth(health);
             }
@@ -113,33 +121,61 @@ public class PlayerController : MonoBehaviour
             if (health <= GameManager.maxHealth)
             {
                 health += healAmt;
-                Debug.Log("Healing");
+                // Debug.Log("Healing");
                 healthBar.SetHealth(health);
                 UpdatePlayerHealthData();
             }
         }
     }
     // utility methods
+    private void PlayerDead<T>(T e)
+    {
+        lives -= 1;
+        UpdatePlayerLivesData();
+        GameTimer.DispatchTimeIsOutEvent -= PlayerDead;
+        // move player to main scene
+        // add mark for destroy script
+        // remove this script
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
+        Destroy(GetComponent<Rigidbody>());
+        gameObject.AddComponent<MarkForDestroy>();
+        Destroy(gameObject.transform.GetChild(0).gameObject);
+        Destroy(GetComponent<PlayerController>());
+
+        // if has lives left:
+        // dispatch life lost event
+        if (lives > 0)
+        {
+            DispatchPlayerLifeLostEvent(this);
+        }
+        else //// player dead - dispatch event
+        {
+            DispatchPlayerDeadEvent(this);
+        }
+    }
     private void PlayerDead()
     {
         lives -= 1;
         UpdatePlayerLivesData();
-        // if has lives left:
-        // dispatch event
+        GameTimer.DispatchTimeIsOutEvent -= PlayerDead;
         // move player to main scene
         // add mark for destroy script
         // remove this script
+        SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
+        Destroy(GetComponent<Rigidbody>());
+        gameObject.AddComponent<MarkForDestroy>();
+        Destroy(gameObject.transform.GetChild(0).gameObject);
+        Destroy(GetComponent<PlayerController>());
+        gameObject.tag = "death";
+
+        // if has lives left:
+        // dispatch event
         if (lives > 0)
         {
-            DispatchRestartLevelEvent(this);
-            SceneManager.MoveGameObjectToScene(gameObject, SceneManager.GetSceneByName("Main"));
-            gameObject.AddComponent<MarkForDestroy>();
-            Destroy(GetComponent<PlayerController>());
+            DispatchPlayerLifeLostEvent(this);
         }
         else //// player dead - dispatch event
         {
-            Destroy(GetComponent<Rigidbody>());
-            // health = GameManager.maxHealth;
             DispatchPlayerDeadEvent(this);
         }
     }
