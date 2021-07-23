@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
@@ -12,17 +10,21 @@ public class LevelManager : MonoBehaviour
   {
     if (Instance == null) Instance = this;
   }
+  // register events
   private void OnEnable()
   {
     GameManager.DispatchStartGameEvent += LoadLevel;
     GameManager.DispatchReloadGameEvent += ReloadLevel;
+    GameManager.DispatchBackToStartEvent += UnloadLevel;
     PlayerController.DispatchPlayerLifeLostEvent += RestartLevel;
     PlayerController.DispatchPlayerAtBaseEvent += PlayerCapturedFlag;
   }
+  // deregister events
   private void OnDestroy()
   {
     GameManager.DispatchStartGameEvent -= LoadLevel;
     GameManager.DispatchReloadGameEvent -= ReloadLevel;
+    GameManager.DispatchBackToStartEvent -= UnloadLevel;
     PlayerController.DispatchPlayerLifeLostEvent -= RestartLevel;
     PlayerController.DispatchPlayerAtBaseEvent -= PlayerCapturedFlag;
   }
@@ -42,6 +44,7 @@ public class LevelManager : MonoBehaviour
   }
   public void UnloadLevel<T>(T e)
   {
+    SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
     SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
   }
   public void RestartLevel<T>(T e)
