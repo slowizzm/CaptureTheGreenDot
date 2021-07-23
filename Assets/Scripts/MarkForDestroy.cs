@@ -6,7 +6,11 @@ public class MarkForDestroy : MonoBehaviour
 {
     private void OnEnable()
     {
-        GameManager.DispatchRestartLevelEvent += DestroyMe;
+        GameManager.DispatchReloadGameEvent += DestroyMe;
+    }
+    private void OnDestroy()
+    {
+        GameManager.DispatchReloadGameEvent -= DestroyMe;
     }
     public void DestroyMe<T>(T e)
     {
