@@ -267,7 +267,7 @@ GameObject:
   - component: {fileID: 174650386}
   - component: {fileID: 174650385}
   m_Layer: 5
-  m_Name: btn-retry
+  m_Name: playAgain
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1817,7 +1817,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 107.6, y: 9.3, z: 0}
 --- !u!108 &708641023
 Light:
@@ -2296,7 +2296,7 @@ GameObject:
   - component: {fileID: 821466603}
   - component: {fileID: 821466602}
   m_Layer: 5
-  m_Name: btn-quitGame
+  m_Name: btn-backToStart
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2365,8 +2365,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 2078441801}
-        m_MethodName: EndGame
+      - m_Target: {fileID: 2100290865}
+        m_MethodName: BackToStart
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -2796,7 +2796,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1132977068
 GameObject:
@@ -2828,7 +2828,7 @@ Transform:
   - {fileID: 2037512307}
   - {fileID: 1287267234}
   m_Father: {fileID: 0}
-  m_RootOrder: 4
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1194799340
 GameObject:
@@ -3553,7 +3553,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1781651655
 GameObject:
@@ -4498,7 +4498,7 @@ RectTransform:
   - {fileID: 1692393001}
   - {fileID: 803852545}
   m_Father: {fileID: 0}
-  m_RootOrder: 5
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 0, y: 0}
