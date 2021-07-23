@@ -1,14 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BaseManager : MonoBehaviour
 {
+  // register events
   private void OnEnable()
   {
     PlayerController.DispatchPlayerHasFlagEvent += UpdateBaseColorGreen;
     PlayerController.DispatchPlayerDroppedFlagEvent += UpdateBaseColorRed;
   }
+  // deregister events
   private void OnDestroy()
   {
     PlayerController.DispatchPlayerHasFlagEvent -= UpdateBaseColorGreen;
