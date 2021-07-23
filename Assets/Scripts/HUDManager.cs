@@ -17,7 +17,7 @@ public class HUDManager : MonoBehaviour
         PlayerController.DispatchPlayerDroppedFlagEvent += HideFlagIndicator;
         PlayerController.DispatchPlayerDeadEvent += UpdateLivesDisplay;
     }
-    private void OnDisable()
+    private void OnDestroy()
     {
         PlayerController.DispatchPlayerHasFlagEvent -= ShowFlagIndicator;
         PlayerController.DispatchPlayerDroppedFlagEvent -= HideFlagIndicator;
@@ -32,11 +32,15 @@ public class HUDManager : MonoBehaviour
         UpdateLivesDisplay();
         UpdateScoreDisplay();
     }
+    private void Update()
+    {
+        tmp_timer.text = GameManager.timer;
+        // Debug.Log(GameManager.timer);
+    }
     //set lives text
     // not a fan of the overloading, refactor later
     public void UpdateLivesDisplay()
     {
-        // lives = GameManager.lives;
         if (GameManager.lives > 0)
         {
             tmp_lives.text = $"Lives: {GameManager.lives.ToString()}";
@@ -53,7 +57,7 @@ public class HUDManager : MonoBehaviour
 
     public void ShowFlagIndicator(PlayerController e)
     {
-        tmp_flagIsHeld.text = "hasFlag";
+        tmp_flagIsHeld.text = "Dot Captured";
     }
     public void HideFlagIndicator(PlayerController e)
     {
