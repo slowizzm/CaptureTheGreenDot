@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 public class LevelManager : MonoBehaviour
 {
     public static LevelManager Instance { get; private set; }
-    private int currentLevel;
+    public static int currentLevel;
 
     private void Awake()
     {
@@ -15,26 +15,26 @@ public class LevelManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.DispatchStartGameEvent += LoadLevel;
-        GameManager.DispatchEndGameEvent += UnloadLevel;
-        GameManager.DispatchReloadGameEvent += RestartLevel;
-        PlayerController.DispatchRestartLevelEvent += RestartLevel;
-        PlayerController.DispatchPlayerAtBaseEvent += E_AtBaseEvent;
+        // GameManager.DispatchEndGameEvent += UnloadLevel;
+        GameManager.DispatchReloadGameEvent += ReloadLevel;
+        PlayerController.DispatchPlayerLifeLostEvent += RestartLevel;
+        PlayerController.DispatchPlayerAtBaseEvent += PlayerCapturedFlag;
     }
-    private void OnDisable()
+    private void OnDestroy()
     {
         GameManager.DispatchStartGameEvent -= LoadLevel;
-        GameManager.DispatchEndGameEvent -= UnloadLevel;
-        GameManager.DispatchReloadGameEvent -= RestartLevel;
-        PlayerController.DispatchRestartLevelEvent -= RestartLevel;
-        PlayerController.DispatchPlayerAtBaseEvent -= E_AtBaseEvent;
+        // GameManager.DispatchEndGameEvent -= UnloadLevel;
+        GameManager.DispatchReloadGameEvent -= ReloadLevel;
+        PlayerController.DispatchPlayerLifeLostEvent -= RestartLevel;
+        PlayerController.DispatchPlayerAtBaseEvent -= PlayerCapturedFlag;
     }
     void Start()
     {
         currentLevel = GameManager.level;
     }
-    private void E_AtBaseEvent(PlayerController e)
+    private void PlayerCapturedFlag(PlayerController e)
     {
-        Debug.Log("congratz: reached end of level");
+        Debug.Log("cpatured the dot");
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
     }
@@ -52,6 +52,15 @@ public class LevelManager : MonoBehaviour
         SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
         SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
+        GameTimer.Instance.StartTimer();
+    }
+    public void RestartLevel()
+    {
+        GameManager.health = GameManager.maxHealth;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
+        GameTimer.Instance.StartTimer();
     }
     public void StartNextLevel()
     {
@@ -59,5 +68,16 @@ public class LevelManager : MonoBehaviour
         GameManager.level = currentLevel;
         GameManager.health = GameManager.maxHealth;
         SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
+        GameTimer.Instance.StartTimer();
+    }
+    public void ReloadLevel<T>(T e)
+    {
+        currentLevel = 1;
+        GameManager.level = currentLevel;
+        GameManager.health = GameManager.maxHealth;
+        SceneManager.SetActiveScene(SceneManager.GetSceneByName("Main"));
+        SceneManager.UnloadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1);
+        SceneManager.LoadSceneAsync(SceneManager.GetActiveScene().buildIndex + 1, LoadSceneMode.Additive);
+        GameTimer.Instance.StartTimer();
     }
 }
