@@ -17,7 +17,7 @@ public class CameraManager : MonoBehaviour
         PlayerController.DispatchPlayerDeadEvent += EnableRotateAround;
         GameManager.DispatchStartGameEvent += ResetCameraRotation;
     }
-    private void OnEnableDisable()
+    private void OnDestroy()
     {
         PlayerController.DispatchPlayerDeadEvent -= EnableRotateAround;
         GameManager.DispatchStartGameEvent -= ResetCameraRotation;
