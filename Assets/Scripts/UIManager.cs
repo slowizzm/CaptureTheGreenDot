@@ -9,6 +9,8 @@ public class UIManager : MonoBehaviour
     public GameObject cnv_ui;
     public int lives;
     private int currentScene;
+    public TextMeshProUGUI tmp_score;
+    public TextMeshProUGUI tmp_time;
 
     public static UIManager Instance { get; private set; }
     private void Awake()
@@ -22,73 +24,96 @@ public class UIManager : MonoBehaviour
         PlayerController.DispatchPlayerAtBaseEvent += DisplaySuccessMenu;
         GameManager.DispatchStartGameEvent += HideAllMenus;
         GameManager.DispatchEndGameEvent += DisplayStartMenu;
-        GameManager.DispatchRestartLevelEvent += HideAllMenus;
         GameManager.DispatchReloadGameEvent += HideAllMenus;
+        FlagManager.DispatchSuicideLevelEvent += DisplayShowSucideMenu;
     }
-    private void OnDisable()
+    private void OnDestroy()
     {
         PlayerController.DispatchPlayerDeadEvent -= DisplayGameMenu;
         PlayerController.DispatchPlayerAtBaseEvent -= DisplaySuccessMenu;
         GameManager.DispatchStartGameEvent -= HideAllMenus;
         GameManager.DispatchEndGameEvent -= DisplayStartMenu;
-        GameManager.DispatchRestartLevelEvent -= HideAllMenus;
         GameManager.DispatchReloadGameEvent -= HideAllMenus;
+        FlagManager.DispatchSuicideLevelEvent -= DisplayShowSucideMenu;
     }
-    public void HideAllMenus<T>(T e)
+    private void HideAllMenus<T>(T e)
     {
-        bool[] arr = { false, false, false };
+        bool[] arr = { false, false, false, false, false };
         MenuStates(arr);
     }
-    public void HideAllMenus() // overload
+    private void HideAllMenus() // overload
     {
-        bool[] arr = { false, false, false };
+        bool[] arr = { false, false, false, false, false };
         MenuStates(arr);
     }
     private void DisplayStartMenu<T>(T e)
     {
-        bool[] arr = { true, false, false };
+        bool[] arr = { true, false, false, false, false };
         MenuStates(arr);
     }
-    public void DisplayGameMenu<T>(T e)
+    private void DisplayGameMenu<T>(T e)
     {
-        bool[] arr = { false, true, false };
+        tmp_time.text = $"Total Time: {GameManager.time.ToString()}";
+        tmp_score.text = $"Dots Captured: {GameManager.level.ToString()}";
+        bool[] arr = { false, true, false, false, false };
+        MenuStates(arr);
+    }
+    private void DisplayShowSucideMenu<T>(T e)
+    {
+        bool[] arr = { false, true, false, false, true };
         MenuStates(arr);
     }
     private void DisplaySuccessMenu<T>(T e)
     {
-        dsm();
+        tmp_time.text = $"Player Time: {GameManager.time.ToString()}";
+        tmp_score.text = $"Player Score: {GameManager.level.ToString()}";
+        bool[] arr = { false, false, true, false, false };
+        MenuStates(arr);
+        // CheckIfShowSuccessOrCompletedFrame();
     }
 
-    private void dsm()
+    private void CheckIfShowSuccessOrCompletedFrame()
     {
-        if (SceneManager.GetActiveScene().buildIndex == SceneManager.sceneCountInBuildSettings)
+        if (LevelManager.currentLevel >= GameManager.maxLevels)
         {
-            bool[] arr = { false, false, true };
+            bool[] arr = { false, false, false, true, false };
             MenuStates(arr);
+            // tmp_time.text = $"Player Time: {GameManager.time.ToString()}";
+            // tmp_score.text = $"Player Score: {GameManager.level.ToString()}";
         }
         else
         {
-            bool[] arr = { false, false, true };
+            bool[] arr = { false, false, true, false, false };
             MenuStates(arr);
         }
     }
-    public void MenuStates(bool[] states)
+    private void MenuStates(bool[] states)
     {
-        ToggleStartMenu(states[0]);
-        ToggleFailMenu(states[1]);
-        ToggleSuccessMenu(states[2]);
+        ToggleStartFrame(states[0]);
+        ToggleFailFrame(states[1]);
+        ToggleSuccessFrame(states[2]);
+        ToggleCompletedFrame(states[3]);
+        ToggleShowSucideMenu(states[4]);
     }
-    public void ToggleStartMenu(bool state)
+    private void ToggleStartFrame(bool state)
     {
         transform.GetChild(0).gameObject.SetActive(state);
     }
-    public void ToggleFailMenu(bool state)
+    private void ToggleFailFrame(bool state)
     {
         transform.GetChild(1).gameObject.SetActive(state);
     }
-    public void ToggleSuccessMenu(bool state)
+    private void ToggleSuccessFrame(bool state)
     {
         transform.GetChild(2).gameObject.SetActive(state);
+    }
+    private void ToggleCompletedFrame(bool state)
+    {
+        transform.GetChild(3).gameObject.SetActive(state);
+    }
+    private void ToggleShowSucideMenu(bool state)
+    {
+        transform.GetChild(4).gameObject.SetActive(state);
     }
 
     // user events
@@ -112,5 +137,11 @@ public class UIManager : MonoBehaviour
     {
         LevelManager.Instance.StartNextLevel();
         HideAllMenus();
+    }
+
+    public void GoToStartMenu()
+    {
+        bool[] arr = { true, false, false, false };
+        MenuStates(arr);
     }
 }
