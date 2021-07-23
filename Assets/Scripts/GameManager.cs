@@ -11,46 +11,41 @@ public class GameManager : MonoBehaviour
     public static float maxHealth = 100;
     public static int score = 0;
     public static int level = 1;
-    [HideInInspector] public UIManager uiManager;
-    [HideInInspector] public FlagManager flagManager;
+    public static int maxLevels = 2;
+    public static float time;
+    public static string timer = "0";
+
+    // events
     public static event Action<GameManager> DispatchStartGameEvent = delegate { };
     public static event Action<GameManager> DispatchEndGameEvent = delegate { };
-    public static event Action<GameManager> DispatchRestartLevelEvent = delegate { };
     public static event Action<GameManager> DispatchReloadGameEvent = delegate { };
 
+    // Game Instance
     public static GameManager Instance { get; private set; }
 
+    // cache instance - set to not destroy on load
     private void Awake()
     {
         if (Instance == null) Instance = this;
         DontDestroyOnLoad(gameObject);
-        uiManager = UIManager.Instance;
-        flagManager = FlagManager.Instance;
     }
+
+    // init settings
     private void InitGame()
     {
         lives = maxLives;
         score = 0;
         level = 1;
         health = maxHealth;
+        time = 0;
     }
+
+    // user events - from UIManager
     public void StartGame()
     {
         InitGame();
         DispatchStartGameEvent(this);
     }
-    // public void RestartLevel()
-    // {
-    //     lives = maxLives;
-    //     health = maxHealth;
-    //     DispatchRestartLevelEvent(this);
-    // }
-    // public void StartNextLevel()
-    // {
-    //     lives = maxLives;
-    //     health = maxHealth;
-    //     DispatchRestartLevelEvent(this);
-    // }
     public void EndGame()
     {
         DispatchEndGameEvent(this);
