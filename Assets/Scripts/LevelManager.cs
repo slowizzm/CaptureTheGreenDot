@@ -15,7 +15,6 @@ public class LevelManager : MonoBehaviour
     private void OnEnable()
     {
         GameManager.DispatchStartGameEvent += LoadLevel;
-        // GameManager.DispatchEndGameEvent += UnloadLevel;
         GameManager.DispatchReloadGameEvent += ReloadLevel;
         PlayerController.DispatchPlayerLifeLostEvent += RestartLevel;
         PlayerController.DispatchPlayerAtBaseEvent += PlayerCapturedFlag;
@@ -23,7 +22,6 @@ public class LevelManager : MonoBehaviour
     private void OnDestroy()
     {
         GameManager.DispatchStartGameEvent -= LoadLevel;
-        // GameManager.DispatchEndGameEvent -= UnloadLevel;
         GameManager.DispatchReloadGameEvent -= ReloadLevel;
         PlayerController.DispatchPlayerLifeLostEvent -= RestartLevel;
         PlayerController.DispatchPlayerAtBaseEvent -= PlayerCapturedFlag;
